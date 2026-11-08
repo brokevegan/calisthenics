@@ -1,7 +1,7 @@
 /* Keeps the app's own files on the iPhone so it opens with no internet. Never holds workout records.
    A new version is picked up when opened with internet. Made by tools/make_site_files.py. */
-const CACHE = "calisthenics-4f8e6cac3c85";
-const FILES = ["./", "app.css", "figures.json", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "index.html", "js/app.js", "js/cues.js", "js/data.js", "js/engine.js", "js/runread.js", "js/session.js", "js/store.js", "manifest.webmanifest", "vendor/tesseract/eng.traineddata.gz", "vendor/tesseract/tesseract-core-simd-lstm.wasm.js", "vendor/tesseract/tesseract.min.js", "vendor/tesseract/worker.min.js"];
+const CACHE = "calisthenics-ce25457fad42";
+const FILES = ["./", "app.css", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "index.html", "js/app.js", "js/cues.js", "js/data.js", "js/engine.js", "js/figure.js", "js/poses.js", "js/runread.js", "js/session.js", "js/store.js", "manifest.webmanifest", "vendor/tesseract/eng.traineddata.gz", "vendor/tesseract/tesseract-core-simd-lstm.wasm.js", "vendor/tesseract/tesseract.min.js", "vendor/tesseract/worker.min.js"];
 
 self.addEventListener("install", e => {
   // Fresh from the website: GitHub Pages lets browsers keep a file for 10 minutes, and an old one must never be saved as this version.

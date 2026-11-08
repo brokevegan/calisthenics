@@ -74,11 +74,13 @@ h1, h2, h3, p { margin: 0; }
 .exrow .dose { font: 600 15px var(--num); color: var(--ink2); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .exrow .chev { color: var(--ink3); }
 .tag { font-size: 10.5px; font-weight: 750; letter-spacing: .05em; color: var(--accent); margin-left: 5px; }
-.thumb { width: 54px; height: 40px; border-radius: 8px; background: var(--fig); flex: none; object-fit: contain; }
+.thumb { width: 54px; height: 40px; border-radius: 8px; background: var(--fig); flex: none; overflow: hidden; }
 
 /* ---- figures */
 .figwrap { background: var(--fig); border-radius: 14px; padding: 6px; min-height: 120px; display: flex; align-items: center; justify-content: center; }
-.figwrap img { display: block; width: 100%; max-height: 30vh; object-fit: contain; }
+.figwrap { overflow: hidden; }
+.figwrap.steps { min-height: 0; margin-top: 8px; padding: 8px 8px 6px; }
+.figwrap.steps .fig svg { max-height: 16vh; }
 
 /* ---- session */
 #session { position: fixed; inset: 0; background: var(--bg); z-index: 10; display: flex; flex-direction: column; padding: calc(var(--safe-t) + 8px) 16px calc(var(--safe-b) + 14px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
@@ -183,4 +185,37 @@ h1, h2, h3, p { margin: 0; }
 #toast { position: fixed; left: 16px; right: 16px; bottom: calc(var(--safe-b) + 74px); z-index: 30; background: var(--ink); color: var(--bg); padding: 12px 14px; border-radius: 13px; font-weight: 650; font-size: 15px; text-align: center; }
 
 @media (prefers-reduced-motion: reduce) { .s-bar i { transition: none; } }
-@media (max-height: 700px) { .s-goal .big { font-size: 60px; } .figwrap img { max-height: 22vh; } .figwrap { min-height: 90px; } }
+@media (max-height: 700px) { .s-goal .big { font-size: 60px; } .figwrap .fig svg { max-height: 22vh; } .figwrap { min-height: 90px; } }
+
+/* Exercise figures (js/figure.js) */
+.fig { display: block; position: relative; width: 100%; }
+.fig svg { display: block; width: 100%; height: auto; max-height: 30vh; }
+.fig.thumb { width: 54px; height: 40px; padding: 2px 3px; box-sizing: border-box; }
+.fig.thumb svg { width: 100%; height: 100%; max-height: none; }
+.figstrip { display: flex; gap: 6px; align-items: flex-end; width: 100%; }
+.figcell { position: relative; min-width: 0; }
+.figcell + .figcell { border-left: 1px dashed #cfc9bb; padding-left: 6px; }
+.figlab { position: absolute; left: 4px; top: 2px; z-index: 1; font-size: 11px; font-weight: 800; letter-spacing: .04em; color: #fff; background: #1f2421; border-radius: 99px; padding: 2px 8px; }
+.figlab.bad { background: #a3241f; }
+.figsvg .o { fill: #1e2321; stroke: #1e2321; stroke-width: .0144; stroke-linejoin: round; }
+.figsvg .sk, .figsvg .sk2, .figsvg .neck, .figsvg .head, .figsvg .sh, .figsvg .sh2, .figsvg .pt, .figsvg .pt2 { stroke-width: .003; stroke-linejoin: round; }
+.figsvg .sk, .figsvg .neck, .figsvg .head { fill: #efc09c; stroke: #efc09c; }
+.figsvg .sk2 { fill: #c9977a; stroke: #c9977a; }
+.figsvg .sh { fill: #2f7a68; stroke: #2f7a68; }
+.figsvg .sh2 { fill: #235c4f; stroke: #235c4f; }
+.figsvg .pt { fill: #353b40; stroke: #353b40; }
+.figsvg .pt2 { fill: #24292d; stroke: #24292d; }
+.figsvg .shoe { fill: #f7f6f2; }
+.figsvg .shoe2 { fill: #c7c4bb; }
+.figsvg .hair { fill: #3b2a20; }
+.figsvg .ear { fill: #e3ad88; stroke: #1e2321; stroke-width: .0045; }
+.figsvg .eye { fill: #1e2321; }
+.figsvg .brow { fill: none; stroke: #3b2a20; stroke-width: .006; stroke-linecap: round; }
+.figsvg .hem, .figsvg .seam { fill: none; stroke: #1e2321; stroke-width: .0055; stroke-linecap: round; opacity: .55; }
+.figsvg .pr { fill: #d6cfbf; stroke: #6f695d; stroke-width: .009; stroke-linejoin: round; }
+.figsvg .prl { fill: none; stroke: #6f695d; stroke-width: .024; stroke-linecap: round; }
+.figsvg .prl2 { fill: none; stroke: #6f695d; stroke-width: .012; }
+.figsvg .wall { fill: #e4ded1; }
+.figsvg .floor { fill: #e9e4d8; }
+.figsvg .floorl { fill: none; stroke: #b8b1a2; stroke-width: .008; }
+.figsvg .shadow { fill: #000; opacity: .09; }

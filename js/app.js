@@ -23,16 +23,18 @@
     toastTimer = setTimeout(function () { t.hidden = true; }, 3200);
   }
 
-  // ------------------------------------------------------------ drawings
-  let figs = null;
-  function figSrc(key) { return figs && figs[key] ? "data:image/svg+xml;charset=utf-8," + encodeURIComponent(figs[key]) : ""; }
-  function figImg(key) { return key ? '<img data-fig="' + esc(key) + '" alt="">' : ""; }
-  function fillFigs() {
-    document.querySelectorAll("img[data-fig]").forEach(function (img) {
-      if (!img.getAttribute("src") && figs) { const src = figSrc(img.getAttribute("data-fig")); if (src) img.src = src; }
-    });
-  }
-  fetch("figures.json").then(function (r) { return r.json(); }).then(function (d) { figs = d; fillFigs(); }).catch(function () { /* drawings are optional */ });
+  // ------------------------------------------------------------ drawings (js/figure.js)
+  // ctx "session": a figure on the workout screen, which moves only while a set is under way.
+  function figImg(key, ctx) { return key ? Fig.html(key, "anim", ctx) : ""; }
+  function figThumb(key) { return Fig.html(key, "still", null, "thumb"); }
+  function fillFigs() { Fig.mount(document); }
+  Fig.playing = function (el) {
+    if (el.getAttribute("data-ctx") !== "session") return true;
+    const s = st.active;
+    if (!s || s.pausedAt != null) return false;
+    const v = RUNNER.view(s, Date.now());
+    return v.phases ? !!(v.phase && v.phase.kind === "work") : true;
+  };
 
   function muscleMap(prim, sec) {
     const m = WB.bodyMap, P = {}, S = {};
@@ -138,7 +140,7 @@
     });
     html += '<div class="exlist">';
     w.items.forEach(function (it) {
-      html += '<button class="exrow" data-a="howto" data-key="' + it.key + '"><img class="thumb" data-fig="' + it.key + '" alt=""><span class="nm">' + esc(it.name) +
+      html += '<button class="exrow" data-a="howto" data-key="' + it.key + '">' + figThumb(it.key) + '<span class="nm">' + esc(it.name) +
         (it.fixed ? '<span class="tag">POSTURE</span>' : "") + "<small>" + esc(E.GROUPS[it.group]) + " &middot; Tier " + st.tiers[it.group] + "</small></span>" +
         '<span class="dose">' + it.sets + " &times; " + esc(E.fmtDose(it.goal, it.unit)) + "</span></button>";
     });
@@ -442,7 +444,7 @@
   }
   function setHeader(s, st0) {
     const it = s.items[st0.item];
-    return '<button class="figwrap" data-a="howto" data-key="' + it.key + '" aria-label="How to do it">' + figImg(it.key) + "</button>" +
+    return '<button class="figwrap" data-a="howto" data-key="' + it.key + '" aria-label="How to do it">' + figImg(it.key, "session") + "</button>" +
       '<div class="s-title">' + esc(it.name) + "</div>" +
       '<div class="s-meta">Set ' + st0.set + " of " + it.sets + " &middot; " + esc(E.GROUPS[it.group]) + (it.eased ? " &middot; Eased goal" : "") + "</div>";
   }
@@ -485,7 +487,7 @@
         '<button class="link" data-a="editLast">Change</button></div>';
     }
     html += '<div class="nextup">';
-    if (next.type === "set") html += '<img class="thumb" data-fig="' + next.item.key + '" alt=""><div class="nm">Next: ' + esc(next.item.name) + "<small>Set " + next.set + " of " + next.item.sets + " &middot; " + esc(E.fmtDose(next.item.goal, next.item.unit)) + "</small></div>";
+    if (next.type === "set") html += figThumb(next.item.key) + '<div class="nm">Next: ' + esc(next.item.name) + "<small>Set " + next.set + " of " + next.item.sets + " &middot; " + esc(E.fmtDose(next.item.goal, next.item.unit)) + "</small></div>";
     else if (next.type === "guide") html += '<div class="nm">Next: ' + esc(next.label) + "<small>" + (next.phase === "cool" ? "Cool-down" : "Warm-up") + "</small></div>";
     else if (next.type === "test") html += '<div class="nm">Next: ' + esc(next.label) + "<small>Checkpoint test</small></div>";
     else html += '<div class="nm">Last one done<small>Finish up</small></div>';
@@ -496,7 +498,7 @@
   function guideScreen(s, step, v) {
     const phaseName = step.phase === "cool" ? "Cool-down" : step.phase === "snack" ? "Posture snack" : "Warm-up";
     let html = '<div class="eyebrow" style="margin-top:6px">' + phaseName + "</div>";
-    if (step.key) html += '<button class="figwrap" data-a="howto" data-key="' + step.key + '" aria-label="How to do it">' + figImg(step.key) + "</button>";
+    if (step.key) html += '<button class="figwrap" data-a="howto" data-key="' + step.key + '" aria-label="How to do it">' + figImg(step.key, "session") + "</button>";
     html += '<div class="s-title">' + esc(step.label) + "</div>";
     if (step.note) html += '<div class="s-meta">' + esc(step.note) + "</div>";
     if (v.phases) html += '<div class="s-goal"><div class="big" id="sTime">0</div><div class="lab" id="sPhase"></div></div><div class="s-actions stack"><button class="btn" data-a="guideNext">Skip</button>';
@@ -510,7 +512,7 @@
   function testScreen(s, step, v) {
     const test = step.test;
     let html = '<div class="eyebrow good" style="margin-top:6px">Checkpoint test: ' + esc(E.GROUPS[step.group]) + "</div>";
-    html += '<button class="figwrap" data-a="howto" data-key="' + test.ex + '" aria-label="How to do it">' + figImg(test.ex) + "</button>";
+    html += '<button class="figwrap" data-a="howto" data-key="' + test.ex + '" aria-label="How to do it">' + figImg(test.ex, "session") + "</button>";
     html += '<div class="s-title">' + esc(test.label) + '</div><div class="s-meta">' + esc(test.hint) + "</div>";
     if (test.type === "measure") {
       html += '<label class="field"><span>Gap in centimetres</span><input id="wallCm" inputmode="decimal" type="text" autocomplete="off"></label>' +
@@ -918,6 +920,7 @@
     let html = "<h2>" + esc(e.name) + "</h2>";
     if (lv) html += "<p>" + (E.isUnlocked(st, key) ? "Goal " + esc(E.fmtDose(E.goalOf(st, key), lv.unit)) + ", top " + esc(E.fmtDose(lv.hi, lv.unit)) : "Unlocks at " + esc(E.GROUPS[lv.group]) + " Tier " + (E.GROUP_BANDS[lv.group].indexOf(lv.band) + 1)) + ".</p>";
     html += '<div class="figwrap">' + figImg(key) + "</div>";
+    if (Fig.moves(key)) html += '<div class="figwrap steps">' + Fig.html(key, "steps") + "</div>";
     html += "<ol style='margin-top:12px'>" + e.steps.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ol>";
     html += "<ul>" + e.tips.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
     if (e.easier) html += "<p><b>Easier:</b> " + esc(e.easier) + "</p>";
